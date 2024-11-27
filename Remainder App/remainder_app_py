@@ -1,0 +1,82 @@
+import tkinter as tk
+from tkinter import messagebox
+from datetime import datetime, timedelta
+import threading
+import time
+
+# Function to set the remainder
+def set_remainder():
+    try:
+        hours = int(hours_entry.get())
+        minutes = int(minutes_entry.get())
+        message = message_entry.get().strip()
+        
+        if not message:
+            result_label.config(text="Message cannot be empty. Add something fun or useful!")
+            return
+
+        # Calculate the target time
+        target_time = datetime.now() + timedelta(hours=hours, minutes=minutes)
+        result_label.config(text=f"⏰ Remainder set for {target_time.strftime('%I:%M %p')} with message: '{message}'")
+        
+        # Start a thread to handle the notification
+        threading.Thread(target=notify_user, args=(target_time, message), daemon=True).start()
+    except ValueError:
+        result_label.config(text="⚠️ Please enter valid numbers for Ghante (hours) and Minute!")
+
+# Function to notify the user
+def notify_user(target_time, message):
+    while datetime.now() < target_time:
+        time.sleep(1)  # Check every second
+    messagebox.showinfo("⏰ Reminder Alert", f"📢 {message}")
+
+# Quick Preset Functionality
+def quick_preset(minutes, message):
+    target_time = datetime.now() + timedelta(minutes=minutes)
+    result_label.config(text=f"⏰ Quick remainder set for {target_time.strftime('%I:%M %p')} with message: '{message}'")
+    threading.Thread(target=notify_user, args=(target_time, message), daemon=True).start()
+
+# Create the main application window
+app = tk.Tk()
+app.title("Youth Remainder App 🇮🇳")
+app.geometry("400x500")
+app.configure(bg="#FDF6EC")
+
+# Header
+tk.Label(app, text="Remainder App 📅", font=("Helvetica", 18, "bold"), bg="#FDF6EC", fg="#FF5733").pack(pady=10)
+
+# Input Section
+tk.Label(app, text="⏱ Enter Time:", font=("Helvetica", 12), bg="#FDF6EC").pack(pady=5)
+tk.Label(app, text="Ghante (Hours):", font=("Helvetica", 10), bg="#FDF6EC").pack()
+hours_entry = tk.Entry(app, width=5, justify="center")
+hours_entry.pack()
+
+tk.Label(app, text="Minute:", font=("Helvetica", 10), bg="#FDF6EC").pack()
+minutes_entry = tk.Entry(app, width=5, justify="center")
+minutes_entry.pack()
+
+tk.Label(app, text="✍️ Message:", font=("Helvetica", 12), bg="#FDF6EC").pack(pady=5)
+message_entry = tk.Entry(app, width=30)
+message_entry.pack()
+
+# Set Remainder Button
+set_button = tk.Button(app, text="Set Remainder", command=set_remainder, bg="#FF5733", fg="white", font=("Helvetica", 12, "bold"))
+set_button.pack(pady=10)
+
+# Quick Presets
+tk.Label(app, text="⏩ Quick Reminders:", font=("Helvetica", 12, "bold"), bg="#FDF6EC").pack(pady=10)
+quick1 = tk.Button(app, text="30 min Study Break 📖", command=lambda: quick_preset(30, "Take a Study Break!"), bg="#FFBD69", font=("Helvetica", 10))
+quick1.pack(pady=5)
+
+quick2 = tk.Button(app, text="1 hr Workout 💪", command=lambda: quick_preset(60, "Time for Workout!"), bg="#FFBD69", font=("Helvetica", 10))
+quick2.pack(pady=5)
+
+quick3 = tk.Button(app, text="2 hr Chill Time 🎮", command=lambda: quick_preset(120, "Take a Chill Pill!"), bg="#FFBD69", font=("Helvetica", 10))
+quick3.pack(pady=5)
+
+# Result Label
+result_label = tk.Label(app, text="", font=("Helvetica", 12), bg="#FDF6EC", fg="#C70039")
+result_label.pack(pady=10)
+
+# Run the application
+app.mainloop()
